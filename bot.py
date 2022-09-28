@@ -86,7 +86,6 @@ def get_image(img_url):
             with open(img_path, 'wb') as image_file:
                 for chunk in resp:
                     image_file.write(chunk)
-
             return img_path
     else:
         print("It's not an image")
