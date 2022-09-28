@@ -1,13 +1,11 @@
+from glob import glob
 import urllib
+import os
+import time
 import requests
 import tweepy
 import praw
-import os
-import time
-from glob import glob
 from dotenv import load_dotenv
-import os
-
 load_dotenv()
 
 CONSUMER_KEY = os.environ["CONSUMER_KEY"]
@@ -26,7 +24,7 @@ POSTED_CACHE = 'posted_posts.txt'
 
 TWEET_SUFFIX = ' #dogs #Chihuahua'
 
-DELAY_BETWEEN_TWEETS = 60  # half a day
+DELAY_BETWEEN_TWEETS = 86400  # a day
 
 
 
@@ -35,10 +33,9 @@ def tweet():
     auth.set_access_token(ACCESS_KEY, ACCESS_SECRET)
     api = tweepy.API(auth)
     for submission in reddit.subreddit('Chihuahua').top():
-        post_dict, post_ids = tweet_creator(submission)
-        for post, post_id in zip(post_dict, post_ids):
+        post_dict = tweet_creator(submission)
+        for post in post_dict:
             img_path = post_dict[post]['img_path']
-            # print("IMAGE PATH :", post_dict[post])
             extra_text = ' ' + post_dict[post]['link'] + TWEET_SUFFIX
             extra_text_len = 1 + 24 + len(TWEET_SUFFIX)
             if img_path:  # Image counts as a link
@@ -63,10 +60,10 @@ def tweet_creator(submission):
         post_ids.append(submission.id)
         f = open(POSTED_CACHE, "a")
         f.write(submission.id + "\n")
-        f.close()      
+        f.close()
     else:
         print("Already tweeted or it's not an image.")
-    return post_dict, post_ids
+    return post_dict
 
 
 def already_tweeted(post_id):
